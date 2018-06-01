@@ -1,0 +1,44 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - .:/data/db
+  parse-server:
+    image: yongjhih/parse-server
+    links:
+      - mongo
+    ports:
+      - "1337:1337"
+    environment:
+      DATABASE_URI: mongodb://mongo:27017/test
+      APP_ID: APPLICATION_ID
+      MASTER_KEY: MASTER_KEY
+  parse-dashboard:
+    image: "yongjhih/parse-dashboard"
+    links:
+      - parse-server
+    ports:
+      - "4040:4040"
+    environment:
+      APP_ID: APPLICATION_ID
+      MASTER_KEY: MASTER_KEY
+      APP_NAME: APP
+      SERVER_URL: http://192.168.99.100:1337/parse
+      ALLOW_INSECURE_HTTP: 1
+      USER1: admin
+      USER1_PASSWORD: admin
+      PARSE_DASHBOARD_ALLOW_INSECURE_HTTP: 1
+      PARSE_DASHBOARD_SERVER_URL: http://192.168.99.100:1337/parse
+      PARSE_DASHBOARD_MASTER_KEY: MASTER_KEY
+      PARSE_DASHBOARD_APP_ID: APPLICATION_ID
+      PARSE_DASHBOARD_APP_NAME: APP
+      PARSE_DASHBOARD_USER_ID: admin
+      PARSE_DASHBOARD_USER_PASSWORD: admin
+      PORT: 4040
+  web:
+    build: .
+    ports:
+      - 3000:3000
